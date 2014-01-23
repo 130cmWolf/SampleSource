@@ -60,6 +60,7 @@ public class PasswordTextBox : TextBox
             base.Text = new String(PasswordCharEx, PasswordText.Length);
             return;
         }
+        
         // バックスペース処理
         if (e.KeyChar == '\b')
         {
@@ -70,6 +71,15 @@ public class PasswordTextBox : TextBox
                 PasswordText = PasswordText.Remove(pos, 1);
             }
             else
+            {
+                // 範囲指定削除処理
+                PasswordText = PasswordText.Remove(pos, this.SelectionLength);
+            }
+        }
+        else
+        {
+            // 範囲指定入力処理
+            if (this.SelectionLength > 0)
             {
                 PasswordText = PasswordText.Remove(pos, this.SelectionLength);
             }
@@ -104,6 +114,7 @@ public class PasswordTextBox : TextBox
             }
             else
             {
+                // 範囲指定削除処理
                 PasswordText = PasswordText.Remove(pos, this.SelectionLength);
             }
         }
