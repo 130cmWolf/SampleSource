@@ -8,7 +8,9 @@ public class PasswordTextBox : TextBox
     public PasswordTextBox() :
         base()
     {
-        PasswordCharEx = '●';
+        base.PasswordChar = '\0';
+        this.PasswordChar = '●';
+        PasswordText = "";
         MaskTimer.Enabled = false;
         MaskTimer.Tick += new EventHandler(MaskTimer_Tick);
         KeyDown += new KeyEventHandler(PasswordTextBox_KeyDown);
@@ -20,16 +22,29 @@ public class PasswordTextBox : TextBox
         TimerStop();
     }
 
-#if !WindowsCE
-    [Category("表示")]
-    [Description("パスワードマスク文字を指定します。\r\nPasswordCharは利用しないでください。")]
-#endif
-    public char PasswordCharEx { get; set; }
 
 #if !WindowsCE
-    [Description("コントロールに関連付けられたテキストです。\r\nパスワード内の文字列はこのプロパティで取得します。")]
+    [Category("動作")]
+    [Description("最後に入力した文字をマスクするまでの時間を設定、取得します。")]
 #endif
-    public String PasswordText { get; set; }
+    public new char PasswordChar { get; set; }
+
+
+#if !WindowsCE
+    [Category("表示")]
+    [Description("コントロールに関連付けられたテキストです。\r\nパスワードの文字列はこのプロパティで取得します。")]
+#endif
+    public String PasswordText
+    {
+        get { return PasswordText__; }
+        set
+        {
+            PasswordText__ = value;
+            base.Text = new String(PasswordChar, PasswordText.Length);
+        }
+    }
+    private String PasswordText__ { get; set; }
+
 
 #if !WindowsCE
     [Category("動作")]
@@ -42,25 +57,25 @@ public class PasswordTextBox : TextBox
         TimerStop();
         var pos = this.SelectionStart;
         var sellen = this.SelectionLength;
-        base.Text = new String(PasswordCharEx, PasswordText.Length);
+        base.Text = new String(PasswordChar, PasswordText.Length);
         this.SelectionStart = pos;
         this.SelectionLength = sellen;
     }
 
     void PasswordTextBox_KeyPress(object sender, KeyPressEventArgs e)
     {
-        if (String.IsNullOrEmpty(PasswordText)) PasswordText = "";
         e.Handled = true;
         TimerStop();
         TimerStart();
-        var pos = this.SelectionStart;
+        var pos = base.SelectionStart;
 
         if (pos > PasswordText.Length)
         {
-            base.Text = new String(PasswordCharEx, PasswordText.Length);
+            base.Text = new String(PasswordChar, PasswordText.Length);
+            base.SelectionStart = pos;
             return;
         }
-        
+
         // バックスペース処理
         if (e.KeyChar == '\b')
         {
@@ -89,16 +104,16 @@ public class PasswordTextBox : TextBox
         if (e.KeyChar >= ' ' && e.KeyChar <= '~')
         {
             PasswordText = PasswordText.Insert(pos, new String(e.KeyChar, 1));
-            base.Text = new String(PasswordCharEx, PasswordText.Length - 1);
+            base.Text = new String(PasswordChar, PasswordText.Length - 1);
             base.Text = base.Text.Insert(pos, new String(e.KeyChar, 1));
             pos++;
         }
         else
         {
-            base.Text = new String(PasswordCharEx, PasswordText.Length);
+            base.Text = new String(PasswordChar, PasswordText.Length);
         }
 
-        this.SelectionStart = pos;
+        base.SelectionStart = pos;
     }
 
     void PasswordTextBox_KeyDown(object sender, KeyEventArgs e)
