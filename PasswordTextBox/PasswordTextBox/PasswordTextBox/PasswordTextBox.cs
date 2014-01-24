@@ -72,6 +72,7 @@ public class PasswordTextBox : TextBox
         if (pos > PasswordText.Length)
         {
             base.Text = new String(PasswordChar, PasswordText.Length);
+            base.SelectionStart = pos;
             return;
         }
 
