@@ -122,7 +122,12 @@ public class PasswordTextBox : TextBox
         // KeyPressではDeleteが処理できないため代理
         if (e.KeyCode == Keys.Delete)
         {
-            if (pos == base.Text.Length) return;
+            if (pos >= base.Text.Length)
+            {
+                base.Text = new String(PasswordChar, PasswordText.Length);
+                base.SelectionStart = pos;
+                return;
+            }
             if (this.SelectionLength == 0)
             {
                 PasswordText = PasswordText.Remove(pos, 1);
